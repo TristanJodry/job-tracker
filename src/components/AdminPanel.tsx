@@ -52,43 +52,43 @@ export default function AdminPanel({ db, onUpdate }: AdminPanelProps) {
   return (
     <div className="max-w-6xl mx-auto space-y-8 pb-12">
       <div>
-        <h2 className="text-3xl font-bold text-slate-900 tracking-tight">Administration</h2>
-        <p className="text-slate-500 mt-1">Gérez les comptes utilisateurs et les accès à l'application.</p>
+        <h2 className="text-3xl font-bold tracking-tight dark:text-white">Administration</h2>
+        <p className="text-slate-500 mt-1 dark:text-slate-400">Gérez les comptes utilisateurs et les accès à l'application.</p>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
         {/* Ajouter un utilisateur */}
-        <section className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 h-fit lg:col-span-1">
-          <div className="flex items-center gap-2 text-slate-900 font-bold border-b border-slate-50 pb-4 mb-6">
-            <UserPlus className="text-blue-600" size={20} />
+        <section className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 h-fit lg:col-span-1 dark:bg-slate-800 dark:border-slate-700">
+          <div className="flex items-center gap-2 font-bold border-b border-slate-50 pb-4 mb-6 dark:text-white dark:border-slate-700">
+            <UserPlus className="text-blue-600 dark:text-blue-400" size={20} />
             <h3>Créer un compte</h3>
           </div>
           
           <form onSubmit={addUser} className="space-y-4">
             <div>
-              <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Identifiant</label>
+              <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1 dark:text-slate-400">Identifiant</label>
               <input
                 type="text"
                 required
-                className="w-full px-4 py-2 rounded-lg border border-slate-200 focus:ring-2 focus:ring-blue-500 outline-none"
+                className="w-full px-4 py-2 rounded-lg border border-slate-200 focus:ring-2 focus:ring-blue-500 outline-none dark:bg-slate-700 dark:border-slate-600 dark:text-white"
                 value={newUsername}
                 onChange={(e) => setNewUsername(e.target.value)}
               />
             </div>
             <div>
-              <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Mot de passe</label>
+              <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1 dark:text-slate-400">Mot de passe</label>
               <input
                 type="password"
                 required
-                className="w-full px-4 py-2 rounded-lg border border-slate-200 focus:ring-2 focus:ring-blue-500 outline-none"
+                className="w-full px-4 py-2 rounded-lg border border-slate-200 focus:ring-2 focus:ring-blue-500 outline-none dark:bg-slate-700 dark:border-slate-600 dark:text-white"
                 value={newPassword}
                 onChange={(e) => setNewPassword(e.target.value)}
               />
             </div>
             <div>
-              <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Rôle</label>
+              <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1 dark:text-slate-400">Rôle</label>
               <select
-                className="w-full px-4 py-2 rounded-lg border border-slate-200 focus:ring-2 focus:ring-blue-500 outline-none"
+                className="w-full px-4 py-2 rounded-lg border border-slate-200 focus:ring-2 focus:ring-blue-500 outline-none dark:bg-slate-700 dark:border-slate-600 dark:text-white"
                 value={newRole}
                 onChange={(e) => setNewRole(e.target.value as any)}
               >
@@ -98,7 +98,7 @@ export default function AdminPanel({ db, onUpdate }: AdminPanelProps) {
             </div>
             <button
               type="submit"
-              className="w-full bg-blue-600 text-white py-2.5 rounded-xl font-semibold hover:bg-blue-700 transition-all shadow-lg shadow-blue-100 flex items-center justify-center gap-2"
+              className="w-full bg-blue-600 text-white py-2.5 rounded-xl font-semibold hover:bg-blue-700 transition-all shadow-lg shadow-blue-100 flex items-center justify-center gap-2 dark:shadow-blue-900/20"
             >
               <UserPlus size={18} />
               Ajouter
@@ -107,9 +107,9 @@ export default function AdminPanel({ db, onUpdate }: AdminPanelProps) {
         </section>
 
         {/* Liste des utilisateurs */}
-        <section className="lg:col-span-3 bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
-          <div className="flex items-center gap-2 text-slate-900 font-bold border-b border-slate-50 pb-4 mb-6">
-            <Users className="text-blue-600" size={20} />
+        <section className="lg:col-span-3 bg-white p-6 rounded-2xl shadow-sm border border-slate-100 dark:bg-slate-800 dark:border-slate-700">
+          <div className="flex items-center gap-2 font-bold border-b border-slate-50 pb-4 mb-6 dark:text-white dark:border-slate-700">
+            <Users className="text-blue-600 dark:text-blue-400" size={20} />
             <h3>Utilisateurs enregistrés ({db.users.length})</h3>
           </div>
 
@@ -124,20 +124,20 @@ export default function AdminPanel({ db, onUpdate }: AdminPanelProps) {
                   <th className="pb-4 px-2 text-right">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-50">
+              <tbody className="divide-y divide-slate-50 dark:divide-slate-700">
                 {db.users.map((u) => (
                   <tr key={u.id} className="group">
                     <td className="py-4 px-2">
                       <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center font-bold text-slate-500 text-xs">
+                        <div className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center font-bold text-slate-500 text-xs dark:bg-slate-700 dark:text-slate-400">
                           {u.username[0].toUpperCase()}
                         </div>
-                        <span className="font-semibold text-slate-900">{u.username}</span>
+                        <span className="font-semibold dark:text-white">{u.username}</span>
                       </div>
                     </td>
                     <td className="py-4 px-2">
                       <select
-                        className="text-xs font-bold px-2 py-1 rounded bg-slate-50 border-none outline-none focus:ring-1 focus:ring-blue-500"
+                        className="text-xs font-bold px-2 py-1 rounded bg-slate-50 border-none outline-none focus:ring-1 focus:ring-blue-500 dark:bg-slate-700 dark:text-white"
                         value={u.role}
                         onChange={(e) => updateUserField(u.id, "role", e.target.value)}
                       >
@@ -149,7 +149,7 @@ export default function AdminPanel({ db, onUpdate }: AdminPanelProps) {
                       <input
                         type="password"
                         placeholder="sk-..."
-                        className="text-xs border border-slate-100 rounded px-2 py-1 w-32 focus:border-blue-300 outline-none"
+                        className="text-xs border border-slate-100 rounded px-2 py-1 w-32 focus:border-blue-300 outline-none dark:bg-slate-700 dark:border-slate-600 dark:text-white dark:focus:border-blue-500"
                         value={u.geminiApiKey || ""}
                         onChange={(e) => updateUserField(u.id, "geminiApiKey", e.target.value)}
                       />
@@ -158,7 +158,7 @@ export default function AdminPanel({ db, onUpdate }: AdminPanelProps) {
                       <input
                         type="password"
                         placeholder="Changer..."
-                        className="text-xs border border-slate-100 rounded px-2 py-1 w-24 focus:border-blue-300 outline-none"
+                        className="text-xs border border-slate-100 rounded px-2 py-1 w-24 focus:border-blue-300 outline-none dark:bg-slate-700 dark:border-slate-600 dark:text-white dark:focus:border-blue-500"
                         onChange={(e) => updateUserField(u.id, "password", e.target.value)}
                       />
                     </td>
@@ -168,8 +168,8 @@ export default function AdminPanel({ db, onUpdate }: AdminPanelProps) {
                           onClick={() => deleteUser(u.id)}
                           className={`p-2 transition-all rounded-lg ${
                             u.id === "admin-1" 
-                            ? "text-slate-100 cursor-not-allowed" 
-                            : "text-slate-400 hover:text-red-600 hover:bg-red-50"
+                            ? "text-slate-100 dark:text-slate-800 cursor-not-allowed" 
+                            : "text-slate-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20"
                           }`}
                           disabled={u.id === "admin-1"}
                         >

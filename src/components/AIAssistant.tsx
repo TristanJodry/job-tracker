@@ -49,21 +49,21 @@ export default function AIAssistant({ user, profile }: AIAssistantProps) {
     <div className="max-w-4xl mx-auto space-y-8 pb-12">
       <div className="flex justify-between items-end">
         <div>
-          <h2 className="text-3xl font-bold text-slate-900 tracking-tight flex items-center gap-3">
-            Assistant IA <Sparkles className="text-blue-600" />
+          <h2 className="text-3xl font-bold tracking-tight flex items-center gap-3 dark:text-white">
+            Assistant IA <Sparkles className="text-blue-600 dark:text-blue-400" />
           </h2>
-          <p className="text-slate-500 mt-1">Améliorez votre CV et générez des lettres de motivation grâce à l'IA.</p>
+          <p className="text-slate-500 mt-1 dark:text-slate-400">Améliorez votre CV et générez des lettres de motivation grâce à l'IA.</p>
         </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
         <div className="lg:col-span-2 space-y-6">
-          <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
-            <label className="block text-sm font-bold text-slate-900 mb-4 flex items-center gap-2">
-              <FileText size={18} className="text-blue-600" /> Contenu de votre CV
+          <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 dark:bg-slate-800 dark:border-slate-700">
+            <label className="block text-sm font-bold mb-4 flex items-center gap-2 dark:text-white">
+              <FileText size={18} className="text-blue-600 dark:text-blue-400" /> Contenu de votre CV
             </label>
             <textarea
-              className="w-full h-64 p-4 rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-500 outline-none resize-none text-sm"
+              className="w-full h-64 p-4 rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-500 outline-none resize-none text-sm dark:bg-slate-700 dark:border-slate-600 dark:text-white"
               placeholder="Copiez-collez ici le texte de votre CV pour analyse..."
               value={cvText}
               onChange={(e) => setCvText(e.target.value)}
@@ -76,8 +76,8 @@ export default function AIAssistant({ user, profile }: AIAssistantProps) {
               disabled={isLoading || !cvText}
               className={`w-full py-3 rounded-xl font-semibold flex items-center justify-center gap-2 transition-all ${
                 mode === "audit" && !isLoading 
-                ? "bg-blue-600 text-white shadow-lg shadow-blue-100" 
-                : "bg-white border border-slate-200 text-slate-600 hover:bg-slate-50"
+                ? "bg-blue-600 text-white shadow-lg shadow-blue-100 dark:shadow-blue-900/20" 
+                : "bg-white border border-slate-200 text-slate-600 hover:bg-slate-50 dark:bg-slate-800 dark:border-slate-700 dark:text-slate-400 dark:hover:bg-slate-700"
               } disabled:opacity-50`}
             >
               {isLoading && mode === "audit" ? <Loader2 className="animate-spin" size={18} /> : <CheckCircle2 size={18} />}
@@ -88,8 +88,8 @@ export default function AIAssistant({ user, profile }: AIAssistantProps) {
               disabled={isLoading || !cvText}
               className={`w-full py-3 rounded-xl font-semibold flex items-center justify-center gap-2 transition-all ${
                 mode === "letter" && !isLoading 
-                ? "bg-indigo-600 text-white shadow-lg shadow-indigo-100" 
-                : "bg-white border border-slate-200 text-slate-600 hover:bg-slate-50"
+                ? "bg-indigo-600 text-white shadow-lg shadow-indigo-100 dark:shadow-indigo-900/20" 
+                : "bg-white border border-slate-200 text-slate-600 hover:bg-slate-50 dark:bg-slate-800 dark:border-slate-700 dark:text-slate-400 dark:hover:bg-slate-700"
               } disabled:opacity-50`}
             >
               {isLoading && mode === "letter" ? <Loader2 className="animate-spin" size={18} /> : <Send size={18} />}
@@ -103,32 +103,32 @@ export default function AIAssistant({ user, profile }: AIAssistantProps) {
             <motion.div
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              className="bg-white p-8 rounded-2xl shadow-sm border border-slate-100 h-full min-h-[400px]"
+              className="bg-white p-8 rounded-2xl shadow-sm border border-slate-100 h-full min-h-[400px] dark:bg-slate-800 dark:border-slate-700"
             >
-              <div className="flex items-center justify-between mb-6 border-b border-slate-50 pb-4">
-                <h3 className="font-bold text-slate-900 text-lg">
+              <div className="flex items-center justify-between mb-6 border-b border-slate-50 pb-4 dark:border-slate-700">
+                <h3 className="font-bold text-lg dark:text-white">
                   {mode === "audit" ? "Résultat de l'analyse" : "Lettre de motivation générée"}
                 </h3>
                 <button 
                   onClick={() => { navigator.clipboard.writeText(result); alert("Copié !"); }}
-                  className="text-xs font-bold text-blue-600 uppercase tracking-wider hover:underline"
+                  className="text-xs font-bold text-blue-600 dark:text-blue-400 uppercase tracking-wider hover:underline"
                 >
                   Copier le texte
                 </button>
               </div>
-              <div className="prose prose-slate max-w-none">
-                <div className="whitespace-pre-wrap text-slate-700 leading-relaxed text-sm">
+              <div className="prose prose-slate max-w-none dark:prose-invert">
+                <div className="whitespace-pre-wrap text-slate-700 leading-relaxed text-sm dark:text-slate-300">
                   {result}
                 </div>
               </div>
             </motion.div>
           ) : (
-            <div className="bg-slate-50 border-2 border-dashed border-slate-200 rounded-2xl flex flex-col items-center justify-center p-12 text-center h-full min-h-[400px]">
-              <div className="w-16 h-16 rounded-full bg-white flex items-center justify-center text-slate-300 mb-4 shadow-sm">
+            <div className="bg-slate-50 border-2 border-dashed border-slate-200 rounded-2xl flex flex-col items-center justify-center p-12 text-center h-full min-h-[400px] dark:bg-slate-800/50 dark:border-slate-700">
+              <div className="w-16 h-16 rounded-full bg-white flex items-center justify-center text-slate-300 mb-4 shadow-sm dark:bg-slate-800 dark:text-slate-600">
                 <Sparkles size={32} />
               </div>
-              <h3 className="font-bold text-slate-900 mb-2">En attente d'action</h3>
-              <p className="text-slate-500 max-w-xs text-sm">
+              <h3 className="font-bold mb-2 dark:text-white">En attente d'action</h3>
+              <p className="text-slate-500 max-w-xs text-sm dark:text-slate-400">
                 Remplissez votre CV à gauche et choisissez une action pour que l'IA vous aide.
               </p>
             </div>

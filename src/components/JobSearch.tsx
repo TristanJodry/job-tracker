@@ -63,16 +63,16 @@ export default function JobSearch({ profile, onAddApplication }: JobSearchProps)
   return (
     <div className="max-w-5xl mx-auto space-y-8 pb-12">
       <div>
-        <h2 className="text-3xl font-bold text-slate-900 tracking-tight">Trouver des offres</h2>
-        <p className="text-slate-500 mt-1">Recherche automatique basée sur vos préférences (LinkedIn, HelloWork, Indeed).</p>
+        <h2 className="text-3xl font-bold tracking-tight dark:text-white">Trouver des offres</h2>
+        <p className="text-slate-500 mt-1 dark:text-slate-400">Recherche automatique basée sur vos préférences (LinkedIn, HelloWork, Indeed).</p>
       </div>
 
-      <form onSubmit={handleSearch} className="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 flex flex-col md:flex-row gap-4">
+      <form onSubmit={handleSearch} className="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 flex flex-col md:flex-row gap-4 dark:bg-slate-800 dark:border-slate-700">
         <div className="flex-1 relative">
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={20} />
           <input
             type="text"
-            className="w-full pl-12 pr-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-500 outline-none"
+            className="w-full pl-12 pr-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-500 outline-none dark:bg-slate-700 dark:border-slate-600 dark:text-white"
             placeholder="Poste, mots-clés ou entreprise"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
@@ -82,7 +82,7 @@ export default function JobSearch({ profile, onAddApplication }: JobSearchProps)
           <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={20} />
           <input
             type="text"
-            className="w-full pl-12 pr-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-500 outline-none"
+            className="w-full pl-12 pr-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-500 outline-none dark:bg-slate-700 dark:border-slate-600 dark:text-white"
             placeholder="Ville"
             value={locationQuery}
             onChange={(e) => setLocationQuery(e.target.value)}
@@ -90,7 +90,7 @@ export default function JobSearch({ profile, onAddApplication }: JobSearchProps)
         </div>
         <button
           type="submit"
-          className="bg-blue-600 text-white px-8 py-3 rounded-xl font-semibold hover:bg-blue-700 transition-all flex items-center justify-center gap-2"
+          className="bg-blue-600 text-white px-8 py-3 rounded-xl font-semibold hover:bg-blue-700 transition-all flex items-center justify-center gap-2 shadow-lg shadow-blue-100 dark:shadow-blue-900/20"
           disabled={isSearching}
         >
           {isSearching ? (
@@ -104,8 +104,8 @@ export default function JobSearch({ profile, onAddApplication }: JobSearchProps)
 
       <div className="space-y-4">
         <div className="flex justify-between items-center px-2">
-          <h3 className="font-bold text-slate-900">Résultats ({results.length})</h3>
-          <button className="flex items-center gap-2 text-sm text-slate-500 hover:text-slate-900 transition-colors">
+          <h3 className="font-bold dark:text-white">Résultats ({results.length})</h3>
+          <button className="flex items-center gap-2 text-sm text-slate-500 hover:text-slate-900 transition-colors dark:hover:text-slate-300">
             <Filter size={16} /> Filtrer
           </button>
         </div>
@@ -117,28 +117,28 @@ export default function JobSearch({ profile, onAddApplication }: JobSearchProps)
                 initial={{ opacity: 0, x: -10 }}
                 animate={{ opacity: 1, x: 0 }}
                 key={job.id}
-                className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 hover:border-blue-200 transition-all group"
+                className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 hover:border-blue-200 transition-all group dark:bg-slate-800 dark:border-slate-700 dark:hover:border-slate-600"
               >
                 <div className="flex gap-4">
-                  <div className="w-12 h-12 rounded-xl bg-blue-50 flex items-center justify-center text-blue-600">
+                  <div className="w-12 h-12 rounded-xl bg-blue-50 flex items-center justify-center text-blue-600 dark:bg-blue-900/30 dark:text-blue-400">
                     <Briefcase size={24} />
                   </div>
                   <div>
-                    <h4 className="font-bold text-slate-900 text-lg group-hover:text-blue-600 transition-colors">{job.title}</h4>
-                    <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-slate-500 mt-1">
+                    <h4 className="font-bold text-lg group-hover:text-blue-600 transition-colors dark:text-white dark:group-hover:text-blue-400">{job.title}</h4>
+                    <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-slate-500 mt-1 dark:text-slate-400">
                       <span className="flex items-center gap-1"><Building2 size={14} /> {job.company}</span>
                       <span className="flex items-center gap-1"><MapPin size={14} /> {job.location}</span>
-                      <span className="px-2 py-0.5 rounded-full bg-slate-100 text-xs font-medium">{job.source}</span>
+                      <span className="px-2 py-0.5 rounded-full bg-slate-100 text-xs font-medium dark:bg-slate-700 dark:text-slate-300">{job.source}</span>
                     </div>
                   </div>
                 </div>
                 <div className="flex items-center gap-3 w-full md:w-auto">
-                  <button className="flex-1 md:flex-none flex items-center justify-center gap-2 text-slate-500 hover:text-slate-900 text-sm font-medium px-4 py-2 rounded-lg hover:bg-slate-50 transition-all border border-transparent hover:border-slate-200">
+                  <button className="flex-1 md:flex-none flex items-center justify-center gap-2 text-slate-500 hover:text-slate-900 text-sm font-medium px-4 py-2 rounded-lg hover:bg-slate-50 transition-all border border-transparent hover:border-slate-200 dark:text-slate-400 dark:hover:text-slate-200 dark:hover:bg-slate-700">
                     <ExternalLink size={16} /> Voir
                   </button>
                   <button 
                     onClick={() => addJob(job)}
-                    className="flex-1 md:flex-none flex items-center justify-center gap-2 bg-blue-600 text-white px-6 py-2 rounded-xl text-sm font-semibold hover:bg-blue-700 transition-all shadow-lg shadow-blue-100"
+                    className="flex-1 md:flex-none flex items-center justify-center gap-2 bg-blue-600 text-white px-6 py-2 rounded-xl text-sm font-semibold hover:bg-blue-700 transition-all shadow-lg shadow-blue-100 dark:shadow-blue-900/20"
                   >
                     <Plus size={18} /> Ajouter
                   </button>
@@ -148,11 +148,11 @@ export default function JobSearch({ profile, onAddApplication }: JobSearchProps)
           </div>
         ) : (
           !isSearching && (
-            <div className="text-center py-20 bg-white rounded-3xl border border-dashed border-slate-200">
-              <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-slate-50 text-slate-300 mb-4">
+            <div className="text-center py-20 bg-white rounded-3xl border border-dashed border-slate-200 dark:bg-slate-800 dark:border-slate-700">
+              <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-slate-50 text-slate-300 mb-4 dark:bg-slate-700">
                 <Search size={32} />
               </div>
-              <p className="text-slate-500">Lancez une recherche pour voir les opportunités disponibles.</p>
+              <p className="text-slate-500 dark:text-slate-400">Lancez une recherche pour voir les opportunités disponibles.</p>
             </div>
           )
         )}

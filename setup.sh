@@ -40,10 +40,51 @@ echo "--- Configuration terminée ---"
 echo "Le port $port a été enregistré dans .env"
 echo "Le mot de passe admin a été mis à jour (haché)."
 echo ""
-echo "Pour lancer l'application en tant que service (systemd), créez un fichier /etc/systemd/system/job-tracker.service avec:"
-echo "[Service]"
-echo "ExecStart=/usr/bin/npm start"
-echo "WorkingDirectory=$(pwd)"
-echo "Restart=always"
-echo "User=$(whoami)"
-echo "Environment=NODE_ENV=production"
+
+# Systemd Service Prompt
+read -p "Voulez-vous générer un fichier de service systemd pour lancer l'app au démarrage ? (y/n): " gen_service
+
+if [[ "$gen_service" =~ ^[Yy]$ ]]; then
+    SERVICE_FILE="job-tracker.service"
+    USER_NAME=$(whoami)
+    WORKING_DIR=$(pwd)
+    
+    cat > $SERVICE_FILE <<EOF
+[Unit]
+Description=Job Tracker Pro Application
+After=network.target
+
+[Service]
+Type=simple
+User=$USER_NAME
+WorkingDirectory=$WORKING_DIR
+ExecStart=/usr/bin/npm start
+Restart=always
+Environment=NODE_ENV=production
+Environment=PORT=$port
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+    echo "Fichier '$SERVICE_FILE' généré avec succès."
+    
+    read -p "Voulez-vous tenter d'installer et lancer le service maintenant ? (nécessite sudo) (y/n): " run_sudo
+    
+    if [[ "$run_sudo" =~ ^[Yy]$ ]]; then
+        echo "Exécution des commandes sudo..."
+        sudo cp $WORKING_DIR/$SERVICE_FILE /etc/systemd/system/
+        sudo systemctl daemon-reload
+        sudo systemctl enable job-tracker
+        sudo systemctl start job-tracker
+        echo "Service installé et démarré !"
+    else
+        echo "Installation manuelle requise :"
+        echo "  sudo cp $WORKING_DIR/$SERVICE_FILE /etc/systemd/system/"
+        echo "  sudo systemctl daemon-reload"
+        echo "  sudo systemctl enable job-tracker"
+        echo "  sudo systemctl start job-tracker"
+    fi
+else
+    echo "Installation du service ignorée."
+fi
