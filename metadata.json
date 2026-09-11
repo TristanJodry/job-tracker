@@ -1,0 +1,6 @@
+{
+  "name": "Job Tracker",
+  "description": "Application intuitive pour gérer vos candidatures, suivre vos recherches d'emploi, et améliorer votre CV avec l'IA.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

@@ -1,0 +1,27 @@
+{
+  "users": [
+    {
+      "id": "admin-1",
+      "username": "admin",
+      "password": "$2b$10$VUJYBxLdKmiWjAVTkAmDUub/UYO0lfOa.XEjT0idBnsQsLuKlUZwS",
+      "role": "admin"
+    }
+  ],
+  "profiles": [
+    {
+      "userId": "admin-1",
+      "firstName": "Tristan",
+      "lastName": "JODRY",
+      "birthDate": "2003-04-06",
+      "address": "9 rue du test 62000 Arras",
+      "phone": "Test",
+      "hasLicense": true,
+      "licenseType": "Permis B",
+      "targetDomain": "Informatique",
+      "targetJob": "Administrateur Réseau",
+      "searchLocation": "62000",
+      "searchRadius": 10
+    }
+  ],
+  "applications": []
+}

@@ -1,0 +1,162 @@
+import React, { useState } from "react";
+import { Profile, JobApplication } from "../types";
+import { Search, MapPin, Building2, Briefcase, Plus, ExternalLink, Filter } from "lucide-react";
+import { motion } from "motion/react";
+
+interface JobSearchProps {
+  profile?: Profile;
+  onAddApplication: (app: JobApplication) => void;
+}
+
+// Mock results to simulate scraping
+const MOCK_JOBS = [
+  { id: "1", title: "Développeur Fullstack React/Node", company: "TechSolutions", location: "Paris (75)", source: "HelloWork" },
+  { id: "2", title: "Développeur Front-end Junior", company: "WebAgency", location: "Lyon (69)", source: "LinkedIn" },
+  { id: "3", title: "Ingénieur Logiciel (H/F)", company: "InnovCorp", location: "Bordeaux (33)", source: "Indeed" },
+  { id: "4", title: "Lead Developer", company: "StartupX", location: "Nantes (44)", source: "HelloWork" },
+  { id: "5", title: "Développeur TypeScript", company: "OpenSource Lab", location: "Lille (59)", source: "LinkedIn" },
+];
+
+export default function JobSearch({ profile, onAddApplication }: JobSearchProps) {
+  const [searchQuery, setSearchQuery] = useState(profile?.targetJob || "");
+  const [locationQuery, setLocationQuery] = useState(profile?.searchLocation || "");
+  const [isSearching, setIsSearching] = useState(false);
+  const [results, setResults] = useState<typeof MOCK_JOBS>([]);
+
+  const handleSearch = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSearching(true);
+    try {
+      const res = await fetch(`/api/jobs/search?q=${encodeURIComponent(searchQuery)}&l=${encodeURIComponent(locationQuery)}`);
+      if (res.ok) {
+        const data = await res.json();
+        setResults(data.results.map((j: any) => ({
+          id: j.id,
+          title: j.title,
+          company: j.company.display_name,
+          location: j.location.display_name,
+          source: "Adzuna"
+        })));
+      }
+    } catch (err) {
+      console.error("Search failed:", err);
+    } finally {
+      setIsSearching(false);
+    }
+  };
+
+  const addJob = (job: typeof MOCK_JOBS[0]) => {
+    const newApp: JobApplication = {
+      id: Math.random().toString(36).substr(2, 9),
+      userId: profile?.userId || "user-1",
+      company: job.company,
+      jobTitle: job.title,
+      location: job.location,
+      status: "A postuler",
+      dateApplied: new Date().toISOString().split('T')[0],
+      notes: `Trouvé sur ${job.source}`,
+      sourceUrl: "#"
+    };
+    onAddApplication(newApp);
+  };
+
+  return (
+    <div className="max-w-5xl mx-auto space-y-8 pb-12">
+      <div>
+        <h2 className="text-3xl font-bold text-slate-900 tracking-tight">Trouver des offres</h2>
+        <p className="text-slate-500 mt-1">Recherche automatique basée sur vos préférences (LinkedIn, HelloWork, Indeed).</p>
+      </div>
+
+      <form onSubmit={handleSearch} className="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 flex flex-col md:flex-row gap-4">
+        <div className="flex-1 relative">
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={20} />
+          <input
+            type="text"
+            className="w-full pl-12 pr-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-500 outline-none"
+            placeholder="Poste, mots-clés ou entreprise"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
+        </div>
+        <div className="md:w-64 relative">
+          <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={20} />
+          <input
+            type="text"
+            className="w-full pl-12 pr-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-500 outline-none"
+            placeholder="Ville"
+            value={locationQuery}
+            onChange={(e) => setLocationQuery(e.target.value)}
+          />
+        </div>
+        <button
+          type="submit"
+          className="bg-blue-600 text-white px-8 py-3 rounded-xl font-semibold hover:bg-blue-700 transition-all flex items-center justify-center gap-2"
+          disabled={isSearching}
+        >
+          {isSearching ? (
+            <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+          ) : (
+            <Search size={20} />
+          )}
+          Rechercher
+        </button>
+      </form>
+
+      <div className="space-y-4">
+        <div className="flex justify-between items-center px-2">
+          <h3 className="font-bold text-slate-900">Résultats ({results.length})</h3>
+          <button className="flex items-center gap-2 text-sm text-slate-500 hover:text-slate-900 transition-colors">
+            <Filter size={16} /> Filtrer
+          </button>
+        </div>
+
+        {results.length > 0 ? (
+          <div className="grid grid-cols-1 gap-4">
+            {results.map((job) => (
+              <motion.div
+                initial={{ opacity: 0, x: -10 }}
+                animate={{ opacity: 1, x: 0 }}
+                key={job.id}
+                className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 hover:border-blue-200 transition-all group"
+              >
+                <div className="flex gap-4">
+                  <div className="w-12 h-12 rounded-xl bg-blue-50 flex items-center justify-center text-blue-600">
+                    <Briefcase size={24} />
+                  </div>
+                  <div>
+                    <h4 className="font-bold text-slate-900 text-lg group-hover:text-blue-600 transition-colors">{job.title}</h4>
+                    <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-slate-500 mt-1">
+                      <span className="flex items-center gap-1"><Building2 size={14} /> {job.company}</span>
+                      <span className="flex items-center gap-1"><MapPin size={14} /> {job.location}</span>
+                      <span className="px-2 py-0.5 rounded-full bg-slate-100 text-xs font-medium">{job.source}</span>
+                    </div>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3 w-full md:w-auto">
+                  <button className="flex-1 md:flex-none flex items-center justify-center gap-2 text-slate-500 hover:text-slate-900 text-sm font-medium px-4 py-2 rounded-lg hover:bg-slate-50 transition-all border border-transparent hover:border-slate-200">
+                    <ExternalLink size={16} /> Voir
+                  </button>
+                  <button 
+                    onClick={() => addJob(job)}
+                    className="flex-1 md:flex-none flex items-center justify-center gap-2 bg-blue-600 text-white px-6 py-2 rounded-xl text-sm font-semibold hover:bg-blue-700 transition-all shadow-lg shadow-blue-100"
+                  >
+                    <Plus size={18} /> Ajouter
+                  </button>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        ) : (
+          !isSearching && (
+            <div className="text-center py-20 bg-white rounded-3xl border border-dashed border-slate-200">
+              <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-slate-50 text-slate-300 mb-4">
+                <Search size={32} />
+              </div>
+              <p className="text-slate-500">Lancez une recherche pour voir les opportunités disponibles.</p>
+            </div>
+          )
+        )}
+      </div>
+    </div>
+  );
+}
