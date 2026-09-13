@@ -1,9 +1,10 @@
 import React, { useState } from "react";
-import { Profile, JobApplication } from "../types";
+import { Profile, JobApplication, User } from "../types";
 import { Search, MapPin, Building2, Briefcase, Plus, ExternalLink, Filter } from "lucide-react";
 import { motion } from "motion/react";
 
 interface JobSearchProps {
+  user?: User;
   profile?: Profile;
   onAddApplication: (app: JobApplication) => void;
 }
@@ -17,7 +18,7 @@ const MOCK_JOBS = [
   { id: "5", title: "Développeur TypeScript", company: "OpenSource Lab", location: "Lille (59)", source: "LinkedIn" },
 ];
 
-export default function JobSearch({ profile, onAddApplication }: JobSearchProps) {
+export default function JobSearch({ user, profile, onAddApplication }: JobSearchProps) {
   const [searchQuery, setSearchQuery] = useState(profile?.targetJob || "");
   const [locationQuery, setLocationQuery] = useState(profile?.searchLocation || "");
   const [isSearching, setIsSearching] = useState(false);
@@ -29,7 +30,10 @@ export default function JobSearch({ profile, onAddApplication }: JobSearchProps)
     setIsSearching(true);
     setSearchMessage(null);
     try {
-      const apiKeyParam = profile?.userId ? `&userApiKey=${encodeURIComponent(localStorage.getItem(`gemini_api_key_${profile.userId}`) || "")}` : "";
+      const uId = user?.id || profile?.userId;
+      const storedKey = uId ? localStorage.getItem(`gemini_api_key_${uId}`) || "" : "";
+      const effectiveApiKey = (user?.geminiApiKey || storedKey).trim();
+      const apiKeyParam = effectiveApiKey ? `&userApiKey=${encodeURIComponent(effectiveApiKey)}` : "";
       const res = await fetch(`/api/jobs/search?q=${encodeURIComponent(searchQuery)}&l=${encodeURIComponent(locationQuery)}${apiKeyParam}`);
       if (res.ok) {
         const data = await res.json();

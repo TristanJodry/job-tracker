@@ -1,15 +1,16 @@
 import React, { useState, useEffect } from "react";
 import { User, Profile, DOMAINS, JOBS_BY_DOMAIN, LICENSE_TYPES } from "../types";
-import { Save, UserCircle, MapPin, Phone, Calendar, Briefcase, CreditCard, Car, Plus, X } from "lucide-react";
+import { Save, UserCircle, MapPin, Phone, Calendar, Briefcase, CreditCard, Car, Plus, X, Key, Shield, Lock, Eye, EyeOff, Check, CheckCircle2 } from "lucide-react";
 import { motion } from "motion/react";
 
 interface ProfilePageProps {
   user: User;
   profile?: Profile;
   onSave: (profile: Profile) => void;
+  onUpdateAccount?: (accountData: { password?: string; geminiApiKey?: string }) => void | Promise<void>;
 }
 
-export default function ProfilePage({ user, profile, onSave }: ProfilePageProps) {
+export default function ProfilePage({ user, profile, onSave, onUpdateAccount }: ProfilePageProps) {
   const [formData, setFormData] = useState<Profile>(
     profile || {
       userId: user.id,
@@ -18,6 +19,7 @@ export default function ProfilePage({ user, profile, onSave }: ProfilePageProps)
       birthDate: "",
       address: "",
       phone: "",
+      hasLicense: false,
       licenseTypes: profile?.licenseTypes || [],
       isVehiculated: profile?.isVehiculated || false,
       targetDomain: profile?.targetDomain || "",
@@ -30,6 +32,68 @@ export default function ProfilePage({ user, profile, onSave }: ProfilePageProps)
   const [customLicense, setCustomLicense] = useState("");
   const [showCustomLicense, setShowCustomLicense] = useState(false);
   const [addressSuggestions, setAddressSuggestions] = useState<any[]>([]);
+
+  // Account & API Key local state
+  const [apiKey, setApiKey] = useState(user.geminiApiKey || localStorage.getItem(`gemini_api_key_${user.id}`) || "");
+  const [showApiKey, setShowApiKey] = useState(false);
+  const [apiKeySaved, setApiKeySaved] = useState(false);
+  const [savingApiKey, setSavingApiKey] = useState(false);
+
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [passwordSaved, setPasswordSaved] = useState(false);
+  const [savingPassword, setSavingPassword] = useState(false);
+  const [passwordError, setPasswordError] = useState<string | null>(null);
+
+  const handleSaveApiKey = async () => {
+    setSavingApiKey(true);
+    try {
+      localStorage.setItem(`gemini_api_key_${user.id}`, apiKey.trim());
+      if (onUpdateAccount) {
+        await onUpdateAccount({ geminiApiKey: apiKey.trim() });
+      }
+      setApiKeySaved(true);
+      setTimeout(() => setApiKeySaved(false), 3000);
+    } catch (err) {
+      console.error(err);
+      alert("Erreur lors de l'enregistrement de la clé API.");
+    } finally {
+      setSavingApiKey(false);
+    }
+  };
+
+  const handleSavePassword = async () => {
+    setPasswordError(null);
+    if (!newPassword.trim()) {
+      setPasswordError("Veuillez saisir un mot de passe.");
+      return;
+    }
+    if (newPassword.length < 4) {
+      setPasswordError("Le mot de passe doit contenir au moins 4 caractères.");
+      return;
+    }
+    if (newPassword !== confirmPassword) {
+      setPasswordError("Les deux mots de passe ne correspondent pas.");
+      return;
+    }
+
+    setSavingPassword(true);
+    try {
+      if (onUpdateAccount) {
+        await onUpdateAccount({ password: newPassword.trim() });
+      }
+      setNewPassword("");
+      setConfirmPassword("");
+      setPasswordSaved(true);
+      setTimeout(() => setPasswordSaved(false), 3000);
+    } catch (err) {
+      console.error(err);
+      setPasswordError("Erreur lors de la mise à jour du mot de passe.");
+    } finally {
+      setSavingPassword(false);
+    }
+  };
 
   const searchAddress = async (query: string) => {
     setFormData({ ...formData, address: query });
@@ -354,6 +418,133 @@ export default function ProfilePage({ user, profile, onSave }: ProfilePageProps)
           </div>
         </section>
       </div>
+
+      {/* Sécurité du Compte & Clé API */}
+      <section className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 dark:bg-slate-800 dark:border-slate-700">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-slate-100 dark:border-slate-700 gap-2 mb-6">
+          <div className="flex items-center gap-2 font-bold dark:text-white">
+            <Shield className="text-blue-600 dark:text-blue-400" size={20} />
+            <h3>Sécurité du Compte & Clé API</h3>
+          </div>
+          <div className="flex items-center gap-2 text-xs">
+            <span className="text-slate-500 dark:text-slate-400">Rôle :</span>
+            <span className={`font-semibold px-2.5 py-0.5 rounded-full ${
+              user.role === "admin"
+                ? "bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300"
+                : "bg-slate-100 text-slate-700 dark:bg-slate-700 dark:text-slate-300"
+            }`}>
+              {user.role === "admin" ? "Administrateur" : "Utilisateur Standard"}
+            </span>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          {/* Clé Gemini */}
+          <div className="space-y-4">
+            <div>
+              <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1 dark:text-slate-400 flex items-center justify-between">
+                <span>Clé API Gemini</span>
+                <span className="text-[11px] text-blue-600 dark:text-blue-400 font-normal">Recherche réelle & Assistant</span>
+              </label>
+              <div className="relative">
+                <input
+                  type={showApiKey ? "text" : "password"}
+                  placeholder="AIzaSy... (laisser vide pour la clé globale)"
+                  className="w-full px-4 py-2 rounded-lg border border-slate-200 focus:ring-2 focus:ring-blue-500 outline-none text-sm pr-10 dark:bg-slate-700 dark:border-slate-600 dark:text-white"
+                  value={apiKey}
+                  onChange={(e) => setApiKey(e.target.value)}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowApiKey(!showApiKey)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
+                  title={showApiKey ? "Masquer" : "Afficher"}
+                >
+                  {showApiKey ? <EyeOff size={16} /> : <Eye size={16} />}
+                </button>
+              </div>
+              <p className="text-xs text-slate-400 mt-1">
+                Configurez votre clé personnelle pour des recherches illimitées sans dépendre du quota partagé.
+              </p>
+            </div>
+
+            <div className="flex items-center gap-3">
+              <button
+                type="button"
+                onClick={handleSaveApiKey}
+                disabled={savingApiKey}
+                className="bg-blue-600 text-white px-4 py-2 rounded-xl text-sm font-semibold hover:bg-blue-700 transition-all flex items-center gap-2 shadow-sm shadow-blue-100 dark:shadow-none cursor-pointer"
+              >
+                <Check size={16} />
+                Confirmer la clé API
+              </button>
+
+              {apiKeySaved && (
+                <span className="text-xs font-semibold text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
+                  <CheckCircle2 size={16} /> Clé enregistrée !
+                </span>
+              )}
+            </div>
+          </div>
+
+          {/* Mot de passe */}
+          <div className="space-y-4">
+            <div>
+              <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1 dark:text-slate-400">
+                Changer de mot de passe
+              </label>
+              <div className="space-y-2">
+                <div className="relative">
+                  <input
+                    type={showPassword ? "text" : "password"}
+                    placeholder="Nouveau mot de passe"
+                    className="w-full px-4 py-2 rounded-lg border border-slate-200 focus:ring-2 focus:ring-blue-500 outline-none text-sm pr-10 dark:bg-slate-700 dark:border-slate-600 dark:text-white"
+                    value={newPassword}
+                    onChange={(e) => setNewPassword(e.target.value)}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
+                    title={showPassword ? "Masquer" : "Afficher"}
+                  >
+                    {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                  </button>
+                </div>
+                <input
+                  type={showPassword ? "text" : "password"}
+                  placeholder="Confirmer le nouveau mot de passe"
+                  className="w-full px-4 py-2 rounded-lg border border-slate-200 focus:ring-2 focus:ring-blue-500 outline-none text-sm dark:bg-slate-700 dark:border-slate-600 dark:text-white"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                />
+              </div>
+
+              {passwordError && (
+                <p className="text-xs text-red-500 mt-1">{passwordError}</p>
+              )}
+            </div>
+
+            <div className="flex items-center gap-3">
+              <button
+                type="button"
+                onClick={handleSavePassword}
+                disabled={savingPassword}
+                className="bg-slate-800 text-white px-4 py-2 rounded-xl text-sm font-semibold hover:bg-slate-900 transition-all flex items-center gap-2 dark:bg-slate-700 dark:hover:bg-slate-600 cursor-pointer"
+              >
+                <Lock size={16} />
+                Confirmer le mot de passe
+              </button>
+
+              {passwordSaved && (
+                <span className="text-xs font-semibold text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
+                  <CheckCircle2 size={16} /> Mot de passe mis à jour !
+                </span>
+              )}
+            </div>
+          </div>
+        </div>
+      </section>
     </div>
   );
 }

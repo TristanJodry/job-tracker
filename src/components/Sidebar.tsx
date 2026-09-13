@@ -12,14 +12,13 @@ interface SidebarProps {
 }
 
 export default function Sidebar({ user, activeTab, setActiveTab, onLogout, isDarkMode, onToggleDarkMode }: SidebarProps) {
-  const menuItems = user.role === "admin" 
-    ? [{ id: "admin", label: "Administration", icon: Settings }]
-    : [
-        { id: "tracker", label: "Candidatures", icon: LayoutDashboard },
-        { id: "search", label: "Recherche", icon: Search },
-        { id: "profile", label: "Mon Profil", icon: UserCircle },
-        { id: "ai", label: "Assistant IA", icon: Sparkles },
-      ];
+  const menuItems = [
+    { id: "tracker", label: "Candidatures", icon: LayoutDashboard },
+    { id: "search", label: "Recherche", icon: Search },
+    { id: "profile", label: "Mon Profil", icon: UserCircle },
+    { id: "ai", label: "Assistant IA", icon: Sparkles },
+    ...(user.role === "admin" ? [{ id: "admin", label: "Administration", icon: Settings }] : []),
+  ];
 
   return (
     <aside className={`w-64 flex flex-col h-screen sticky top-0 transition-colors duration-300 ${isDarkMode ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-100'} border-r`}>

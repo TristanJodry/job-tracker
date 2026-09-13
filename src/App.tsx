@@ -43,16 +43,15 @@ export default function App() {
   }, []);
 
   useEffect(() => {
-    if (user && user.role === "admin" && activeTab !== "admin") {
-      setActiveTab("admin");
-    } else if (user && user.role === "user" && activeTab === "admin") {
+    // Only redirect if a non-admin tries to view the admin tab
+    if (user && user.role !== "admin" && activeTab === "admin") {
       setActiveTab("tracker");
     }
-  }, [user, activeTab]);
+  }, [user?.role, activeTab]);
 
   const handleLogin = (u: User) => {
     setUser(u);
-    if (u.role === "admin") setActiveTab("admin");
+    setActiveTab(u.role === "admin" ? "admin" : "tracker");
   };
 
   const handleLogout = () => {
@@ -62,10 +61,12 @@ export default function App() {
 
   const updateDb = async (newDb: Database) => {
     setDb(newDb);
-    // On update, we send the FULL database including passwords (they will be hashed on server if needed)
-    // But wait, the client doesn't have passwords from the get request.
-    // This is a bit tricky. The admin panel needs to manage passwords.
-    // I'll update the server.ts to be smarter about it.
+    if (user) {
+      const updatedSelf = newDb.users.find((u) => u.id === user.id);
+      if (updatedSelf) {
+        setUser((prev) => (prev ? { ...prev, ...updatedSelf } : null));
+      }
+    }
     await fetch("/api/db/update", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -108,7 +109,7 @@ export default function App() {
             exit={{ opacity: 0, y: -10 }}
             transition={{ duration: 0.2 }}
           >
-            {activeTab === "profile" && user.role !== "admin" && (
+            {activeTab === "profile" && (
               <ProfilePage 
                 user={user} 
                 profile={currentUserProfile} 
@@ -116,12 +117,27 @@ export default function App() {
                   if (!db) return;
                   const newProfiles = db.profiles.filter(pr => pr.userId !== user.id);
                   updateDb({ ...db, profiles: [...newProfiles, p] });
-                }} 
+                }}
+                onUpdateAccount={async (acc) => {
+                  if (!db) return;
+                  const newUsers = db.users.map((u) => {
+                    if (u.id === user.id) {
+                      return {
+                        ...u,
+                        ...(acc.geminiApiKey !== undefined ? { geminiApiKey: acc.geminiApiKey } : {}),
+                        ...(acc.password ? { password: acc.password } : {}),
+                      };
+                    }
+                    return u;
+                  });
+                  await updateDb({ ...db, users: newUsers });
+                }}
               />
             )}
             
-            {activeTab === "search" && user.role !== "admin" && (
+            {activeTab === "search" && (
               <JobSearch 
+                user={user}
                 profile={currentUserProfile} 
                 onAddApplication={(app) => {
                   if (!db) return;
@@ -131,7 +147,7 @@ export default function App() {
               />
             )}
             
-            {activeTab === "tracker" && user.role !== "admin" && (
+            {activeTab === "tracker" && (
               <Tracker 
                 user={user}
                 applications={userApplications} 
@@ -143,13 +159,14 @@ export default function App() {
               />
             )}
             
-            {activeTab === "ai" && user.role !== "admin" && (
+            {activeTab === "ai" && (
               <AIAssistant user={user} profile={currentUserProfile} />
             )}
             
             {activeTab === "admin" && user.role === "admin" && (
               <AdminPanel 
                 db={db!} 
+                currentUser={user}
                 onUpdate={updateDb} 
               />
             )}
@@ -159,3 +176,4 @@ export default function App() {
     </div>
   );
 }
+
