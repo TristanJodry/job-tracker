@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from "motion/react";
 
 interface ManualApplicationModalProps {
   userId: string;
+  initialData?: JobApplication | null;
   onClose: () => void;
   onSave: (app: JobApplication) => void;
 }
@@ -19,33 +20,35 @@ const STATUS_OPTIONS: ApplicationStatus[] = [
   "Refusé"
 ];
 
-export default function ManualApplicationModal({ userId, onClose, onSave }: ManualApplicationModalProps) {
-  const [formData, setFormData] = useState<Partial<JobApplication>>({
-    userId,
-    company: "",
-    jobTitle: "",
-    location: "",
-    status: "A postuler",
-    dateApplied: new Date().toISOString().split('T')[0],
-    notes: "",
-    sourceUrl: "",
-    contactPerson: "",
-    contactInfo: ""
-  });
+export default function ManualApplicationModal({ userId, initialData, onClose, onSave }: ManualApplicationModalProps) {
+  const [formData, setFormData] = useState<Partial<JobApplication>>(
+    initialData || {
+      userId,
+      company: "",
+      jobTitle: "",
+      location: "",
+      status: "A postuler",
+      dateApplied: new Date().toISOString().split('T')[0],
+      notes: "",
+      sourceUrl: "",
+      contactPerson: "",
+      contactInfo: ""
+    }
+  );
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formData.company || !formData.jobTitle) {
+    if (!formData.company?.trim() || !formData.jobTitle?.trim()) {
       alert("Veuillez remplir au moins l'entreprise et le poste.");
       return;
     }
 
-    const newApp: JobApplication = {
-      id: Math.random().toString(36).substr(2, 9),
+    const savedApp: JobApplication = {
+      id: initialData?.id || Math.random().toString(36).substr(2, 9),
       userId: userId,
-      company: formData.company || "",
-      jobTitle: formData.jobTitle || "",
-      location: formData.location || "",
+      company: formData.company?.trim() || "",
+      jobTitle: formData.jobTitle?.trim() || "",
+      location: formData.location?.trim() || "",
       status: (formData.status as ApplicationStatus) || "A postuler",
       dateApplied: formData.dateApplied || new Date().toISOString().split('T')[0],
       notes: formData.notes || "",
@@ -54,7 +57,7 @@ export default function ManualApplicationModal({ userId, onClose, onSave }: Manu
       contactInfo: formData.contactInfo || ""
     };
 
-    onSave(newApp);
+    onSave(savedApp);
   };
 
   return (
@@ -65,7 +68,9 @@ export default function ManualApplicationModal({ userId, onClose, onSave }: Manu
         className="bg-white rounded-2xl shadow-xl w-full max-w-2xl overflow-hidden dark:bg-slate-800 dark:border dark:border-slate-700"
       >
         <div className="px-6 py-4 border-b border-slate-100 flex justify-between items-center bg-slate-50 dark:bg-slate-900/50 dark:border-slate-700">
-          <h3 className="text-xl font-bold dark:text-white">Nouvelle Candidature</h3>
+          <h3 className="text-xl font-bold dark:text-white">
+            {initialData ? "Modifier la Candidature" : "Nouvelle Candidature"}
+          </h3>
           <button onClick={onClose} className="p-2 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-full transition-colors">
             <X size={20} className="text-slate-500" />
           </button>

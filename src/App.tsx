@@ -4,9 +4,7 @@ import Login from "./components/Login";
 import Sidebar from "./components/Sidebar";
 import AdminPanel from "./components/AdminPanel";
 import ProfilePage from "./components/ProfilePage";
-import JobSearch from "./components/JobSearch";
 import Tracker from "./components/Tracker";
-import AIAssistant from "./components/AIAssistant";
 import { motion, AnimatePresence } from "motion/react";
 
 export default function App() {
@@ -43,8 +41,10 @@ export default function App() {
   }, []);
 
   useEffect(() => {
-    // Only redirect if a non-admin tries to view the admin tab
+    // Only redirect if a non-admin tries to view the admin tab or if legacy tab is selected
     if (user && user.role !== "admin" && activeTab === "admin") {
+      setActiveTab("tracker");
+    } else if (activeTab === "search" || activeTab === "ai") {
       setActiveTab("tracker");
     }
   }, [user?.role, activeTab]);
@@ -135,18 +135,6 @@ export default function App() {
               />
             )}
             
-            {activeTab === "search" && (
-              <JobSearch 
-                user={user}
-                profile={currentUserProfile} 
-                onAddApplication={(app) => {
-                  if (!db) return;
-                  updateDb({ ...db, applications: [...db.applications, app] });
-                  setActiveTab("tracker");
-                }}
-              />
-            )}
-            
             {activeTab === "tracker" && (
               <Tracker 
                 user={user}
@@ -157,10 +145,6 @@ export default function App() {
                   updateDb({ ...db, applications: [...otherApps, ...apps] });
                 }}
               />
-            )}
-            
-            {activeTab === "ai" && (
-              <AIAssistant user={user} profile={currentUserProfile} />
             )}
             
             {activeTab === "admin" && user.role === "admin" && (

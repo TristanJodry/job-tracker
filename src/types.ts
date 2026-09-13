@@ -19,6 +19,11 @@ export interface Profile {
   licenseTypes: string[];
   isVehiculated: boolean;
   cvUrl?: string;
+  cvFileName?: string;
+  cvFileType?: string;
+  cvFileSize?: number;
+  cvData?: string;
+  cvUploadedAt?: string;
   targetDomain: string;
   targetJob: string;
   searchLocation: string;

@@ -1,5 +1,5 @@
 import React from "react";
-import { LayoutDashboard, UserCircle, Search, Sparkles, Settings, LogOut, Briefcase, Sun, Moon } from "lucide-react";
+import { LayoutDashboard, UserCircle, Settings, LogOut, Briefcase, Sun, Moon } from "lucide-react";
 import { User } from "../types";
 
 interface SidebarProps {
@@ -14,9 +14,7 @@ interface SidebarProps {
 export default function Sidebar({ user, activeTab, setActiveTab, onLogout, isDarkMode, onToggleDarkMode }: SidebarProps) {
   const menuItems = [
     { id: "tracker", label: "Candidatures", icon: LayoutDashboard },
-    { id: "search", label: "Recherche", icon: Search },
     { id: "profile", label: "Mon Profil", icon: UserCircle },
-    { id: "ai", label: "Assistant IA", icon: Sparkles },
     ...(user.role === "admin" ? [{ id: "admin", label: "Administration", icon: Settings }] : []),
   ];
 

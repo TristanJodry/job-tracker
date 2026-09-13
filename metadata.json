@@ -1,6 +1,6 @@
 {
-  "name": "Job Tracker",
-  "description": "Application intuitive pour gérer vos candidatures, suivre vos recherches d'emploi, et améliorer votre CV avec l'IA.",
+  "name": "JobTracker Pro",
+  "description": "Gestionnaire intuitif de candidatures d'emploi manuelles et profil professionnel avec dépôt et aperçu de CV.",
   "requestFramePermissions": [],
   "majorCapabilities": [
     "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
