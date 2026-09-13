@@ -21,21 +21,28 @@ export default function JobSearch({ profile, onAddApplication }: JobSearchProps)
   const [searchQuery, setSearchQuery] = useState(profile?.targetJob || "");
   const [locationQuery, setLocationQuery] = useState(profile?.searchLocation || "");
   const [isSearching, setIsSearching] = useState(false);
-  const [results, setResults] = useState<typeof MOCK_JOBS>([]);
+  const [results, setResults] = useState<any[]>([]);
+  const [searchMessage, setSearchMessage] = useState<string | null>(null);
 
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSearching(true);
+    setSearchMessage(null);
     try {
-      const res = await fetch(`/api/jobs/search?q=${encodeURIComponent(searchQuery)}&l=${encodeURIComponent(locationQuery)}`);
+      const apiKeyParam = profile?.userId ? `&userApiKey=${encodeURIComponent(localStorage.getItem(`gemini_api_key_${profile.userId}`) || "")}` : "";
+      const res = await fetch(`/api/jobs/search?q=${encodeURIComponent(searchQuery)}&l=${encodeURIComponent(locationQuery)}${apiKeyParam}`);
       if (res.ok) {
         const data = await res.json();
+        if (data.type === "fallback") {
+          setSearchMessage(data.message);
+        }
         setResults(data.results.map((j: any) => ({
           id: j.id,
           title: j.title,
           company: j.company.display_name,
           location: j.location.display_name,
-          source: "Adzuna"
+          source: j.source || "Autre",
+          url: j.redirect_url
         })));
       }
     } catch (err) {
@@ -45,7 +52,7 @@ export default function JobSearch({ profile, onAddApplication }: JobSearchProps)
     }
   };
 
-  const addJob = (job: typeof MOCK_JOBS[0]) => {
+  const addJob = (job: any) => {
     const newApp: JobApplication = {
       id: Math.random().toString(36).substr(2, 9),
       userId: profile?.userId || "user-1",
@@ -55,7 +62,7 @@ export default function JobSearch({ profile, onAddApplication }: JobSearchProps)
       status: "A postuler",
       dateApplied: new Date().toISOString().split('T')[0],
       notes: `Trouvé sur ${job.source}`,
-      sourceUrl: "#"
+      sourceUrl: job.url
     };
     onAddApplication(newApp);
   };
@@ -103,6 +110,19 @@ export default function JobSearch({ profile, onAddApplication }: JobSearchProps)
       </form>
 
       <div className="space-y-4">
+        {searchMessage && (
+          <motion.div 
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="p-4 bg-amber-50 border border-amber-200 rounded-xl text-amber-700 text-sm flex items-center gap-3 dark:bg-amber-900/20 dark:border-amber-800 dark:text-amber-400"
+          >
+            <div className="w-8 h-8 rounded-full bg-amber-100 flex items-center justify-center dark:bg-amber-800">
+              <Filter size={16} />
+            </div>
+            {searchMessage} Pour des résultats temps réel illimités, renseignez votre clé API dans votre profil.
+          </motion.div>
+        )}
+
         <div className="flex justify-between items-center px-2">
           <h3 className="font-bold dark:text-white">Résultats ({results.length})</h3>
           <button className="flex items-center gap-2 text-sm text-slate-500 hover:text-slate-900 transition-colors dark:hover:text-slate-300">
@@ -133,9 +153,14 @@ export default function JobSearch({ profile, onAddApplication }: JobSearchProps)
                   </div>
                 </div>
                 <div className="flex items-center gap-3 w-full md:w-auto">
-                  <button className="flex-1 md:flex-none flex items-center justify-center gap-2 text-slate-500 hover:text-slate-900 text-sm font-medium px-4 py-2 rounded-lg hover:bg-slate-50 transition-all border border-transparent hover:border-slate-200 dark:text-slate-400 dark:hover:text-slate-200 dark:hover:bg-slate-700">
+                  <a 
+                    href={job.url} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="flex-1 md:flex-none flex items-center justify-center gap-2 text-slate-500 hover:text-slate-900 text-sm font-medium px-4 py-2 rounded-lg hover:bg-slate-50 transition-all border border-transparent hover:border-slate-200 dark:text-slate-400 dark:hover:text-slate-200 dark:hover:bg-slate-700"
+                  >
                     <ExternalLink size={16} /> Voir
-                  </button>
+                  </a>
                   <button 
                     onClick={() => addJob(job)}
                     className="flex-1 md:flex-none flex items-center justify-center gap-2 bg-blue-600 text-white px-6 py-2 rounded-xl text-sm font-semibold hover:bg-blue-700 transition-all shadow-lg shadow-blue-100 dark:shadow-blue-900/20"

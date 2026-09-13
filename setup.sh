@@ -9,8 +9,8 @@ if [ ! -f "package.json" ]; then
 fi
 
 # Port selection
-read -p "Choisissez le port (par défaut 3000): " port
-port=${port:-3000}
+read -p "Choisissez le port (par défaut 4000, appuyez sur Entrée ou tapez un autre port): " port
+port=${port:-4000}
 
 # Admin password
 echo "Configuration du compte Administrateur..."
@@ -69,21 +69,21 @@ EOF
 
     echo "Fichier '$SERVICE_FILE' généré avec succès."
     
-    read -p "Voulez-vous tenter d'installer et lancer le service maintenant ? (nécessite sudo) (y/n): " run_sudo
+    read -p "Voulez-vous installer et lancer le service systemd maintenant ? (y/n): " run_service
     
-    if [[ "$run_sudo" =~ ^[Yy]$ ]]; then
-        echo "Exécution des commandes sudo..."
-        sudo cp $WORKING_DIR/$SERVICE_FILE /etc/systemd/system/
-        sudo systemctl daemon-reload
-        sudo systemctl enable job-tracker
-        sudo systemctl start job-tracker
-        echo "Service installé et démarré !"
+    if [[ "$run_service" =~ ^[Yy]$ ]]; then
+        echo "Installation et activation du service systemd..."
+        cp $WORKING_DIR/$SERVICE_FILE /etc/systemd/system/
+        systemctl daemon-reload
+        systemctl enable job-tracker
+        systemctl start job-tracker
+        echo "Service job-tracker installé, activé et démarré !"
     else
         echo "Installation manuelle requise :"
-        echo "  sudo cp $WORKING_DIR/$SERVICE_FILE /etc/systemd/system/"
-        echo "  sudo systemctl daemon-reload"
-        echo "  sudo systemctl enable job-tracker"
-        echo "  sudo systemctl start job-tracker"
+        echo "  cp $WORKING_DIR/$SERVICE_FILE /etc/systemd/system/"
+        echo "  systemctl daemon-reload"
+        echo "  systemctl enable job-tracker"
+        echo "  systemctl start job-tracker"
     fi
 else
     echo "Installation du service ignorée."

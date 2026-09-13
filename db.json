@@ -3,11 +3,39 @@
     {
       "id": "admin-1",
       "username": "admin",
-      "password": "$2b$10$VUJYBxLdKmiWjAVTkAmDUub/UYO0lfOa.XEjT0idBnsQsLuKlUZwS",
-      "role": "admin"
+      "role": "admin",
+      "password": "$2b$10$VUJYBxLdKmiWjAVTkAmDUub/UYO0lfOa.XEjT0idBnsQsLuKlUZwS"
+    },
+    {
+      "id": "3qt6hf0kd",
+      "username": "tjodry",
+      "password": "$2b$10$ZcX5c9s8HgdX0DOSJGRdC.kP3W0C9Hzy1lm8lAEvpDYTscGYh3ZG6",
+      "role": "user",
+      "geminiApiKey": ""
+    },
+    {
+      "id": "test-user",
+      "username": "test",
+      "password": "$2b$10$eW5IDUbHz6/D4QLosIKsnun4dNag8aDUKHiVxV3jC4fd4WMlEu8km",
+      "role": "user",
+      "geminiApiKey": ""
     }
   ],
   "profiles": [
+    {
+      "userId": "test-user",
+      "firstName": "Utilisateur",
+      "lastName": "Test",
+      "birthDate": "1995-01-01",
+      "address": "10 Rue de la Paix, 75001 Paris",
+      "phone": "0601020304",
+      "licenseTypes": ["Permis B (Voiture)"],
+      "isVehiculated": true,
+      "targetDomain": "Informatique / Développement / Tech",
+      "targetJob": "Développeur Fullstack",
+      "searchLocation": "Paris",
+      "searchRadius": 20
+    },
     {
       "userId": "admin-1",
       "firstName": "Tristan",

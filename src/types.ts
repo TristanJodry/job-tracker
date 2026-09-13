@@ -16,7 +16,7 @@ export interface Profile {
   address: string;
   phone: string;
   hasLicense: boolean;
-  licenseType: string;
+  licenseTypes: string[];
   isVehiculated: boolean;
   cvUrl?: string;
   targetDomain: string;

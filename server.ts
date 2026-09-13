@@ -21,7 +21,7 @@ async function writeDB(data: any) {
 
 async function startServer() {
   const app = express();
-  const PORT = process.env.PORT || 3000;
+  const PORT = Number(process.env.PORT) || 3000;
 
   app.use(express.json());
 
@@ -117,41 +117,77 @@ async function startServer() {
     }
   });
 
-  // Job Search Route (using Adzuna or similar)
+  // Job Search Route (Real-time web search using Gemini Search Grounding)
   app.get("/api/jobs/search", async (req, res) => {
     try {
-      const { q, l, r } = req.query;
-      // For demonstration, we use a more realistic mock data if no real API key is provided
-      // In a real scenario, you'd use fetch(`https://api.adzuna.com/v1/api/jobs/fr/search/1?app_id=${ID}&app_key=${KEY}&what=${q}&where=${l}&distance=${r}`)
+      const { q, l, userApiKey } = req.query;
+      const query = (q as string) || "Développeur";
+      const location = (l as string) || "France";
       
-      const mockedJobs = [
-        {
-          id: "adz-" + Math.random().toString(36).substr(2, 9),
-          title: (q as string) || "Développeur Web",
-          company: { display_name: "Tech Solutions France" },
-          location: { display_name: (l as string) || "Paris" },
-          description: "Nous recherchons un profil dynamique pour rejoindre notre équipe...",
-          redirect_url: "https://www.adzuna.fr/details/12345",
-          created: new Date().toISOString(),
-          salary_min: 35000,
-          salary_max: 45000
-        },
-        {
-          id: "adz-" + Math.random().toString(36).substr(2, 9),
-          title: (q as string) || "Ingénieur Logiciel",
-          company: { display_name: "InnovCorp" },
-          location: { display_name: (l as string) || "Lyon" },
-          description: "Expert en React et Node.js ? Ce poste est pour vous !",
-          redirect_url: "https://www.adzuna.fr/details/67890",
-          created: new Date().toISOString(),
-          salary_min: 40000,
-          salary_max: 55000
-        }
-      ];
+      const apiKey = (userApiKey as string) || process.env.GEMINI_API_KEY || "";
+      if (!apiKey) {
+        return res.status(400).json({ error: "Clé API Gemini manquante pour la recherche." });
+      }
 
-      res.json({ results: mockedJobs });
-    } catch (error) {
-      res.status(500).json({ error: "Job search failed" });
+      const genAI = new GoogleGenAI({ apiKey });
+      
+      const prompt = `Trouve moi 10 offres d'emploi réelles et très récentes pour le poste suivant: "${query}" à "${location}".
+      Pour chaque offre, je veux: le titre exact, l'entreprise, la ville précise, la source (LinkedIn, HelloWork, Indeed, etc.) et l'URL directe de l'offre.
+      Réponds UNIQUEMENT sous forme d'un tableau JSON d'objets avec les clés: id, title, company, location, source, url.`;
+
+      const interaction = await genAI.interactions.create({
+        model: "gemini-3.8-flash",
+        input: prompt,
+        tools: [{ type: 'google_search' }],
+      });
+
+      let fullOutput = "";
+      for (const step of interaction.steps) {
+        if (step.type === 'model_output') {
+          const textContent = step.content?.find(c => (c as any).type === 'text');
+          if (textContent && (textContent as any).text) {
+            fullOutput += (textContent as any).text;
+          }
+        }
+      }
+
+      const jsonMatch = fullOutput.match(/\[[\s\S]*\]/);
+      const jobs = jsonMatch ? JSON.parse(jsonMatch[0]) : [];
+
+      const formattedResults = jobs.map((j: any) => ({
+        id: j.id || `job-${Math.random().toString(36).substr(2, 9)}`,
+        title: j.title,
+        company: { display_name: j.company },
+        location: { display_name: j.location },
+        source: j.source,
+        redirect_url: j.url
+      }));
+
+      res.json({ results: formattedResults, type: "live" });
+    } catch (error: any) {
+      console.error("Real Job Search Error:", error);
+      
+      // Fallback for RateLimit or other API issues
+      const { q, l } = req.query;
+      const query = (q as string) || "Développeur";
+      const location = (l as string) || "France";
+      const sources = ["LinkedIn", "HelloWork", "Indeed", "Welcome to the Jungle"];
+      const companies = ["TechCorp", "Innovated", "Digital Services", "Future Soft", "Global Solutions"];
+
+      const fallbackResults = Array.from({ length: 8 }).map((_, i) => ({
+        id: `fb-${Math.random().toString(36).substr(2, 9)}`,
+        title: `${query} ${["H/F", "Confirmé", "Junior", "Senior"][i % 4]}`,
+        company: { display_name: companies[i % companies.length] },
+        location: { display_name: location },
+        source: sources[i % sources.length],
+        redirect_url: "#"
+      }));
+
+      res.json({ 
+        results: fallbackResults, 
+        type: "fallback", 
+        message: error.status === 429 ? "Quota API atteint. Affichage de résultats suggérés." : "Erreur de connexion. Affichage de résultats suggérés." 
+      });
     }
   });
 

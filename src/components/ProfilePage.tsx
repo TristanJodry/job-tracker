@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { User, Profile, DOMAINS, JOBS_BY_DOMAIN, LICENSE_TYPES } from "../types";
-import { Save, UserCircle, MapPin, Phone, Calendar, Briefcase, CreditCard, Car, Plus } from "lucide-react";
+import { Save, UserCircle, MapPin, Phone, Calendar, Briefcase, CreditCard, Car, Plus, X } from "lucide-react";
+import { motion } from "motion/react";
 
 interface ProfilePageProps {
   user: User;
@@ -17,10 +18,9 @@ export default function ProfilePage({ user, profile, onSave }: ProfilePageProps)
       birthDate: "",
       address: "",
       phone: "",
-      hasLicense: false,
-      licenseType: "",
-      isVehiculated: false,
-      targetDomain: "",
+      licenseTypes: profile?.licenseTypes || [],
+      isVehiculated: profile?.isVehiculated || false,
+      targetDomain: profile?.targetDomain || "",
       targetJob: "",
       searchLocation: "",
       searchRadius: 10,
@@ -158,77 +158,134 @@ export default function ProfilePage({ user, profile, onSave }: ProfilePageProps)
             </div>
 
             <div className="p-4 bg-slate-50 rounded-xl space-y-4 dark:bg-slate-900/50">
-              <div className="flex items-center justify-between">
-                <label className="flex items-center gap-2 cursor-pointer group">
-                  <input
-                    type="checkbox"
-                    className="w-4 h-4 rounded text-blue-600 focus:ring-blue-500 cursor-pointer dark:bg-slate-700 dark:border-slate-600"
-                    checked={formData.hasLicense}
-                    onChange={(e) => setFormData({ ...formData, hasLicense: e.target.checked })}
-                  />
-                  <span className="text-sm font-medium text-slate-700 group-hover:text-slate-900 transition-colors flex items-center gap-2 dark:text-slate-300 dark:group-hover:text-white">
-                    <CreditCard size={14} /> Permis de conduire
-                  </span>
-                </label>
+              <div className="flex flex-col gap-4">
+                <div className="flex items-center justify-between">
+                  <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider dark:text-slate-400">Permis & Mobilité</label>
+                  <label className="flex items-center gap-2 cursor-pointer group">
+                    <input
+                      type="checkbox"
+                      className="w-4 h-4 rounded text-blue-600 focus:ring-blue-500 cursor-pointer dark:bg-slate-700 dark:border-slate-600"
+                      checked={formData.isVehiculated}
+                      onChange={(e) => setFormData({ ...formData, isVehiculated: e.target.checked })}
+                    />
+                    <span className="text-sm font-medium text-slate-700 group-hover:text-slate-900 transition-colors flex items-center gap-2 dark:text-slate-300 dark:group-hover:text-white">
+                      <Car size={14} /> Véhiculé
+                    </span>
+                  </label>
+                </div>
 
-                <label className="flex items-center gap-2 cursor-pointer group">
-                  <input
-                    type="checkbox"
-                    className="w-4 h-4 rounded text-blue-600 focus:ring-blue-500 cursor-pointer dark:bg-slate-700 dark:border-slate-600"
-                    checked={formData.isVehiculated}
-                    onChange={(e) => setFormData({ ...formData, isVehiculated: e.target.checked })}
-                  />
-                  <span className="text-sm font-medium text-slate-700 group-hover:text-slate-900 transition-colors flex items-center gap-2 dark:text-slate-300 dark:group-hover:text-white">
-                    <Car size={14} /> Véhiculé
-                  </span>
-                </label>
-              </div>
-              
-              {formData.hasLicense && (
-                <div className="space-y-2">
-                  <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1 dark:text-slate-400">Type de permis</label>
-                  <select
-                    className="w-full px-4 py-2 rounded-lg border border-slate-200 focus:ring-2 focus:ring-blue-500 outline-none bg-white dark:bg-slate-700 dark:border-slate-600 dark:text-white"
-                    value={formData.licenseType}
-                    onChange={(e) => {
-                      if (e.target.value === "other") {
-                        setShowCustomLicense(true);
-                      } else {
-                        setShowCustomLicense(false);
-                        setFormData({ ...formData, licenseType: e.target.value });
-                      }
-                    }}
-                  >
-                    <option value="">Sélectionnez un permis</option>
-                    {LICENSE_TYPES.map(type => <option key={type} value={type}>{type}</option>)}
-                    <option value="other">+ Autre permis...</option>
-                  </select>
+                <div className="space-y-3">
+                  <div className="flex items-center gap-2">
+                    <CreditCard size={14} className="text-slate-400" />
+                    <span className="text-xs font-bold text-slate-500 uppercase tracking-wider dark:text-slate-400">Liste des permis</span>
+                  </div>
+
+                  {formData.licenseTypes.length === 0 ? (
+                    <div className="p-3 border border-dashed border-slate-200 rounded-lg text-center dark:border-slate-700">
+                      <p className="text-sm text-slate-500 italic dark:text-slate-400">Aucun permis (ou en cours)</p>
+                    </div>
+                  ) : (
+                    <div className="flex flex-wrap gap-2">
+                      {formData.licenseTypes.map((type, idx) => (
+                        <motion.span 
+                          initial={{ scale: 0.8, opacity: 0 }}
+                          animate={{ scale: 1, opacity: 1 }}
+                          key={idx} 
+                          className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-100 text-blue-700 text-xs font-bold rounded-lg dark:bg-blue-900/40 dark:text-blue-300 border border-blue-200 dark:border-blue-800"
+                        >
+                          {type}
+                          <button 
+                            type="button" 
+                            onClick={() => setFormData({ ...formData, licenseTypes: formData.licenseTypes.filter((_, i) => i !== idx) })}
+                            className="hover:text-red-600 transition-colors"
+                          >
+                            <X size={14} />
+                          </button>
+                        </motion.span>
+                      ))}
+                    </div>
+                  )}
+
+                  <div className="flex gap-2">
+                    <div className="relative flex-1">
+                      <select
+                        className="w-full pl-3 pr-8 py-2 rounded-lg border border-slate-200 focus:ring-2 focus:ring-blue-500 outline-none bg-white dark:bg-slate-700 dark:border-slate-600 dark:text-white text-sm appearance-none cursor-pointer"
+                        value=""
+                        onChange={(e) => {
+                          if (e.target.value === "other") {
+                            setShowCustomLicense(true);
+                          } else if (e.target.value && !formData.licenseTypes.includes(e.target.value)) {
+                            setFormData({ ...formData, licenseTypes: [...formData.licenseTypes, e.target.value] });
+                          }
+                        }}
+                      >
+                        <option value="">+ Ajouter un permis</option>
+                        {LICENSE_TYPES.map(type => (
+                          <option key={type} value={type} disabled={formData.licenseTypes.includes(type)}>{type}</option>
+                        ))}
+                        <option value="other">Autre (CACES, etc.)...</option>
+                      </select>
+                      <Plus size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
+                    </div>
+                    
+                    {formData.licenseTypes.length > 0 && (
+                      <button 
+                        type="button"
+                        onClick={() => {
+                          if(confirm("Effacer tous les permis ?")) {
+                            setFormData({ ...formData, licenseTypes: [] });
+                          }
+                        }}
+                        className="px-3 text-xs text-red-500 font-bold hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
+                      >
+                        RAZ
+                      </button>
+                    )}
+                  </div>
 
                   {showCustomLicense && (
                     <div className="flex gap-2 animate-in fade-in slide-in-from-top-1">
                       <input
                         type="text"
                         placeholder="Précisez le permis..."
-                        className="flex-1 px-4 py-2 rounded-lg border border-slate-200 focus:ring-2 focus:ring-blue-500 outline-none bg-white dark:bg-slate-700 dark:border-slate-600 dark:text-white"
+                        className="flex-1 px-4 py-2 rounded-lg border border-slate-200 focus:ring-2 focus:ring-blue-500 outline-none bg-white dark:bg-slate-700 dark:border-slate-600 dark:text-white text-sm"
                         value={customLicense}
                         onChange={(e) => setCustomLicense(e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter') {
+                            e.preventDefault();
+                            if (customLicense && !formData.licenseTypes.includes(customLicense)) {
+                              setFormData({ ...formData, licenseTypes: [...formData.licenseTypes, customLicense] });
+                              setCustomLicense("");
+                              setShowCustomLicense(false);
+                            }
+                          }
+                        }}
                       />
                       <button 
                         type="button"
                         onClick={() => {
-                          if (customLicense) {
-                            setFormData({ ...formData, licenseType: customLicense });
+                          if (customLicense && !formData.licenseTypes.includes(customLicense)) {
+                            setFormData({ ...formData, licenseTypes: [...formData.licenseTypes, customLicense] });
+                            setCustomLicense("");
                             setShowCustomLicense(false);
                           }
                         }}
-                        className="px-3 bg-slate-200 rounded-lg hover:bg-slate-300 transition-colors dark:bg-slate-600 dark:hover:bg-slate-500 dark:text-white"
+                        className="px-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
                       >
                         <Plus size={18} />
+                      </button>
+                      <button 
+                        type="button"
+                        onClick={() => setShowCustomLicense(false)}
+                        className="px-3 bg-slate-200 rounded-lg hover:bg-slate-300 dark:bg-slate-700 dark:hover:bg-slate-600 transition-colors"
+                      >
+                        <X size={18} />
                       </button>
                     </div>
                   )}
                 </div>
-              )}
+              </div>
             </div>
           </div>
         </section>
